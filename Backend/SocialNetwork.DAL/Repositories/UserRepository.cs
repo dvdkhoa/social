@@ -115,9 +115,9 @@ namespace SocialNetwork.DAL.Repositories
             return users;
         }
 
-        public List<string> GetFollowings(string userId)
+        public async Task<List<string>> GetFollowings(string userId)
         {
-            var followings = _context.Users.AsQueryable().ToList();
+            var followings = await _context.Users.AsQueryable().ToListAsync();
 
             List<string> followingsAsString = (from f in followings
                                                where f.Followers.Keys.Contains(userId)
@@ -152,5 +152,30 @@ namespace SocialNetwork.DAL.Repositories
 
             return result.ModifiedCount > 0;
         }
+
+        public async Task<List<Owner>> GetListFollowings(IEnumerable<string> list_userId)
+        {
+            var filter = Builders<User>.Filter.In(u => u.Id, list_userId);
+
+            var users = await _context.Users.Find(filter).ToListAsync();
+
+            var followings = users.Select(u => new Owner(u.Id, u.Profile)).ToList();
+
+            return followings;
+        }
+        public async Task<List<Owner>> GetListFollowers(string userId)
+        {
+            var filter = Builders<User>.Filter.Eq(u => u.Id, userId);
+
+            var users = await _context.Users.Find(filter).Project(u => u.Followers).FirstOrDefaultAsync();
+
+            var followers = (from u in users
+                             select new Owner { Id = u.Key, Name = u.Value.Name, Image = u.Value.Image, Background = u.Value.Background, Gender = u.Value.Gender })
+                             .ToList();
+
+
+            return followers;
+        }
+        
     }
 }

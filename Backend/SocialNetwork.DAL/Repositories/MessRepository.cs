@@ -12,7 +12,7 @@ namespace SocialNetwork.DAL.Repositories
     public class MessRepository : Base.BaseRepository
     {
         public MessRepository(ResourceDbContext context) : base(context)
-        {
+        { 
         }
 
 

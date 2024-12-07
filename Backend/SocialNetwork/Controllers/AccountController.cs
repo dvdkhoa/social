@@ -116,12 +116,15 @@ namespace SocialNetwork.Api.Controllers
         {
             var userResources = await _accountService.GetUserResourcesById(userId);
 
+            var followings = await _accountService.GetFollowings(userId);
+
             var apiUserResponse = new
             {
                 userId = userResources.Id,
                 userResources.Meta,
                 userResources.Profile,
-                userResources.Followers
+                userResources.Followers,
+                followings
             };
 
             return Ok(apiUserResponse);
@@ -184,6 +187,28 @@ namespace SocialNetwork.Api.Controllers
                 IsSuccess = true,
                 Message = "Change background successfully"
             });
+        }
+
+        [HttpPost("GetFollowings")]
+        public async Task<IActionResult> GetListFollowings(String userId)
+        {
+            var followings = await _accountService.GetFollowings(userId);
+
+            return Ok(followings);
+        }
+        [HttpPost("GetListFollowings")]
+        public async Task<IActionResult> GetListFollowings(string[] list_userId)
+        {
+            var followings = await _accountService.GetListFollowings(list_userId);
+
+            return Ok(followings);
+        }
+        [HttpPost("GetListFollowers")]  
+        public async Task<IActionResult> GetListFollowers(String userId)
+        {
+            var followers = await _accountService.GetListFollowers(userId);
+
+            return Ok(followers);
         }
     }
 }

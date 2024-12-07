@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Hosting;
 using MongoDB.Bson;
 using SocialNetwork.Api.Helpers;
 using SocialNetwork.Api.Hubs;
@@ -325,9 +326,46 @@ namespace SocialNetwork.Api.Controllers
         [HttpPost("Share")]
         public async Task<IActionResult> ShareAsync(string userId, string postId)
         {
-            await _postService.ShareAsync(userId, postId);
+            var postShare = await _postService.ShareAsync(userId, postId);
 
-            return Ok();
+            var postShareViewModel = new
+            {
+                id = postShare.Id.ToString(),
+                postShare.By,
+                postShare.Type,
+                postShare.Meta,
+                postShare.Detail,
+                Share = new
+                {
+                    OriginPostId = postShare.Share?.OriginPostId.ToString(),
+                    OriginOwner = postShare.Share?.OriginOwner
+                },
+                postShare.Comments,
+                postShare.Likes
+            };
+
+            return Ok(postShareViewModel);
+        }
+
+
+        [HttpGet("GetPost")]
+        public async Task<IActionResult> GetPost(string postId)
+        {
+            var post = await _postService.GetPostById(postId);
+
+            var postViewModel = new
+            {
+                id = post.Id.ToString(),
+                post.By,
+                post.Type,
+                post.Meta,
+                post.Detail,
+                post.Comments,
+                post.Likes
+            };
+
+
+            return Ok(postViewModel);
         }
     }
 }

@@ -9,6 +9,7 @@ namespace SocialNetwork.BLL.Services
 {
     public interface IPostService
     {
+        public Task<Post> GetPostById(string postId);
         public Task<List<Post>> GetNewsFeed(string userId, int page = 0);
         public Task<List<Post>> GetWallFeed(string userId, int page = 0);
         public Task<Post> CreatePostAsync(string userId, string text, params PostFile[]? photos);
@@ -22,7 +23,7 @@ namespace SocialNetwork.BLL.Services
 
         public Task UpdateWallPosts(string userId, List<Post> posts);
         public Task UpdateNewsPosts(string userId, List<Post> posts);
-        public Task ShareAsync(string userId, string postId);
+        public Task<Post?> ShareAsync(string userId, string postId);
 
 
     }

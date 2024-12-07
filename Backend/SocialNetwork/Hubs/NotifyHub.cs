@@ -61,7 +61,7 @@ namespace SocialNetwork.Api.Hubs
                 {
                     await Groups.AddToGroupAsync(this.Context.ConnectionId, f.Key + followed); // Join vào các group các user follow mình
                 }
-                var followings = _accountService.GetFollowings(userId);
+                var followings = await _accountService.GetFollowings(userId);
                 foreach (var f in followings)
                 {
                     await Groups.AddToGroupAsync(this.Context.ConnectionId, f + following); // Join vào các group các user mình follow

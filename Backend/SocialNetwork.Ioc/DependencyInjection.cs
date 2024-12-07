@@ -54,9 +54,11 @@ namespace SocialNetwork.Ioc
             services.AddScoped<UserRepository>();
             services.AddScoped<FeedRepository>();
             services.AddScoped<PostRepository>();
+            services.AddScoped<NotifyRepository>();
 
-            services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IPostService, PostService>();
+            services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<INotifyService, NotifyService>();
 
         }
     }

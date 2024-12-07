@@ -5,16 +5,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace SocialNetwork.BLL.Services.Implements
 {
     public class PostService : IPostService
     {
         private readonly PostRepository _postRepository;
+        private readonly UserRepository _userRepository;
+        private readonly NotifyRepository _notifyRepository;
 
-        public PostService(PostRepository postRepository)
+        public PostService(PostRepository postRepository, UserRepository userRepository, NotifyRepository notifyRepository)
         {
             _postRepository = postRepository;
+            _userRepository = userRepository;
+            _notifyRepository = notifyRepository;
         }
 
         public async Task<Comment> CommentAsync(string userId, string postId, string text)
@@ -22,6 +27,12 @@ namespace SocialNetwork.BLL.Services.Implements
             await _postRepository.CommentAsync(userId, postId, text);
 
             var post = await _postRepository.GetPostById(postId);
+            var user = await _userRepository.GetUserResourcesByIdAsync(userId);
+
+            var message = $"{user.Profile.Name} vừa bình luận bài đăng của bạn.";
+
+            if(userId != post.By.Id)
+                await _notifyRepository.CreateAsync(post.By.Id, message, user.Profile.Image, NotificationType.Comment, postId);
 
             var newComment = post.Comments.OrderByDescending(cmt => cmt.Ts).FirstOrDefault();
 
@@ -55,6 +66,11 @@ namespace SocialNetwork.BLL.Services.Implements
             return await _postRepository.GetNewsFeed(userId, page);
         }
 
+        public Task<Post> GetPostById(string postId)
+        {
+            return _postRepository.GetPostById(postId);
+        }
+
         public Task<Feed> GetWallById(string userId)
         {
             return _postRepository.GetWallById(userId);
@@ -66,19 +82,28 @@ namespace SocialNetwork.BLL.Services.Implements
         }
         public async Task<int> LikeAsync(string userId, string postId)
         {
+            var post = await _postRepository.GetPostById(postId);
             var exists = await _postRepository.LikeExists(userId, postId);
 
             if(exists)
                 await _postRepository.UnLikeAsync(userId, postId);
             else
+            {
                 await _postRepository.LikeAsync(userId, postId);
 
-            var post = await _postRepository.GetPostById(postId);
+                var user = await _userRepository.GetUserResourcesByIdAsync(userId);
+
+
+                var message = $"{user.Profile.Name} vừa like bài đăng của bạn.";
+
+                if(userId != post.By.Id)
+                    await _notifyRepository.CreateAsync(post.By.Id, message, user.Profile.Image, NotificationType.Like, postId);
+            }    
 
             return post.Likes.Count();
         }
 
-        public Task ShareAsync(string userId, string postId)
+        public Task<Post?> ShareAsync(string userId, string postId)
         {
             return _postRepository.ShareAsync(userId, postId);
         }

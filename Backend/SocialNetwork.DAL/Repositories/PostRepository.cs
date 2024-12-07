@@ -224,7 +224,7 @@ namespace SocialNetwork.DAL.Repositories
             var results = await _context.News.UpdateManyAsync(filter, update);
         }
 
-        public async Task ShareAsync(string userId, string postId)
+        public async Task<Post?> ShareAsync(string userId, string postId)
         {
             var filter = Builders<Post>.Filter.Eq("_id", ObjectId.Parse(postId));
             var post = await (await _context.Posts.FindAsync(filter)).FirstOrDefaultAsync();
@@ -234,7 +234,7 @@ namespace SocialNetwork.DAL.Repositories
                 .SingleOrDefault();
 
             if (post == null)
-                return;
+                return null;
 
             Post newPost = new Post
             {
@@ -251,6 +251,7 @@ namespace SocialNetwork.DAL.Repositories
                 Type = PostType.Share,
             };
             await CreateAsync(newPost);
+            return newPost;
         }
     }
 }

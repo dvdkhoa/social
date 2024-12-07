@@ -110,9 +110,19 @@ namespace SocialNetwork.BLL.Services.Implements
             return _userRepository.GetAllUserResourcesAsync();
         }
 
-        public List<string> GetFollowings(string userId)
+        public Task<List<string>> GetFollowings(string userId)
         {
             return _userRepository.GetFollowings(userId);
+        }
+
+        public Task<List<DTO.Entities.Owner>> GetListFollowers(string userId)
+        {
+            return _userRepository.GetListFollowers(userId);
+        }
+
+        public Task<List<DTO.Entities.Owner>> GetListFollowings(IEnumerable<string> list_userId)
+        {
+            return _userRepository.GetListFollowings(list_userId);
         }
 
         public Task<DTO.Entities.Profile> GetProfileByIdAsync(string userId)
